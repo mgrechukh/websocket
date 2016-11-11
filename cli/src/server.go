@@ -6,21 +6,21 @@ import (
 	"net/http"
 
 	"golang.org/x/net/websocket"
+        "./base"
 )
 
 func echoHandler(ws *websocket.Conn) {
-	msg := make([]byte, 512)
-	n, err := ws.Read(msg)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Receive: %s\n", msg[:n])
+	for {
+		var msg base.Message
+		err := websocket.JSON.Receive(ws, &msg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Receive", msg)
 
-	m, err := ws.Write(msg[:n])
-	if err != nil {
-		log.Fatal(err)
+		websocket.JSON.Send(ws, msg)
+		fmt.Printf("Send: %s\n", msg)
 	}
-	fmt.Printf("Send: %s\n", msg[:m])
 }
 
 func main() {
